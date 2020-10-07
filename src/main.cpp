@@ -11,9 +11,14 @@ public:
 
 int main()
 {
+
 	unique_ptr<Price> test(new Price);
-	unique_ptr<Price> test2(test);
-	unique_ptr<Price> test3 = std::move(test2);
+	unique_ptr<Price> test3 = std::move(test);
+	test3->value = 5;
+
+	unique_ptr<Price> test4(new Price);
+	test4.swap(test3);
+
 	system("pause");
 	return 0;
 }
