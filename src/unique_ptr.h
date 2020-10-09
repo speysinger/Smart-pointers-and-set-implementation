@@ -95,6 +95,3 @@ inline void unique_ptr<T>::reset(T * newObject)
 	if (temp)
 		delete temp;
 }
-
-
-

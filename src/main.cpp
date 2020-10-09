@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
+
 #include "unique_ptr.h"
+#include "shared_ptr.h"
 
 class Price{
 public:
@@ -11,14 +13,9 @@ public:
 
 int main()
 {
-
-	unique_ptr<Price> test(new Price);
-	unique_ptr<Price> test3 = std::move(test);
-	test3->value = 5;
-
-	unique_ptr<Price> test4(new Price);
-	test4.swap(test3);
-
+	shared_ptr<Price> test(new Price);
+	shared_ptr<Price> test2(test);
+	shared_ptr<Price> test4 = test2;
 	system("pause");
 	return 0;
 }
