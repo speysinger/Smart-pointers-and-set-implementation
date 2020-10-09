@@ -16,6 +16,7 @@ int main()
 	shared_ptr<Price> test(new Price);
 	shared_ptr<Price> test2(test);
 	shared_ptr<Price> test4 = test2;
+
 	system("pause");
 	return 0;
 }

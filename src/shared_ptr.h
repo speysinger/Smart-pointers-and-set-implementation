@@ -36,6 +36,11 @@ public:
 	void swap(shared_ptr &ptr);
 	void reset(T *newObject);
 
+	//Observers
+	int user_count();
+	bool unique();
+	operator bool();
+
 	~shared_ptr();
 private:
 	T *m_ptr = nullptr;
@@ -50,8 +55,11 @@ inline shared_ptr<T>::shared_ptr()
 template<class T>
 inline shared_ptr<T>::shared_ptr(T * t)
 {
-	m_ptr = t;
-	counter++;
+	if (t != nullptr)
+	{
+		m_ptr = t;
+		counter++;
+	}
 }
 
 template<class T>
@@ -99,12 +107,33 @@ inline void shared_ptr<T>::swap(shared_ptr & ptr)
 template<class T>
 inline void shared_ptr<T>::reset(T * newObject)
 {
-	if (counter == 1) {
+	if (counter == 1)
 		delete m_ptr;
-	}
 	m_ptr = newObject;
 	counter = 1;
 
+}
+
+template<class T>
+inline int shared_ptr<T>::user_count()
+{
+	return counter;
+}
+
+template<class T>
+inline bool shared_ptr<T>::unique()
+{
+	if (counter == 1)
+		return true;
+	return false;
+}
+
+template<class T>
+inline shared_ptr<T>::operator bool()
+{
+	if (m_ptr == nullptr)
+		return false;
+	return true;
 }
 
 template<class T>
