@@ -19,7 +19,12 @@ int main()
 	shared_ptr<Price> test4 = test2;
 
 	RedBlackTree<int> tree;
-	tree.addNode(10);
+	tree.addNode(new int(10));
+	tree.addNode(new int(5));
+	tree.addNode(new int(7));
+	tree.addNode(new int(15));
+	tree.addNode(new int(2));
+	tree.addNode(new int(12));
 
 
 	system("pause");
