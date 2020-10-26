@@ -29,7 +29,7 @@ int main()
 	tree.addNode(new int(13));
 	tree.addNode(new int(14));
 
-	tree.deleteNode(new int(8));
+	tree.deleteNode(new int(12));
 
 
 	system("pause");
