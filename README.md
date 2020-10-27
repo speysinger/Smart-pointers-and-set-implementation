@@ -1,4 +1,4 @@
-# Smart-pointers-implementation
+# Smart-pointers and set implementation
 1)Smart-pointers:
 1.1)unique_ptr;
 2.2)shared_ptr;
