@@ -2,8 +2,12 @@
 template <class T>
 class RedBlackTree {
 public:
-	void addNode(T *value);
+	RedBlackTree() {
+		node *root = nullptr;
+	}
+	void addNode(T &value);
 	void deleteNode(T *value);
+	T *find(T &value);
 
 	int size();
 	void clear();
@@ -27,18 +31,20 @@ private:
 	}
 	bool isNIL(node *node);
 
+	void insertionFix(node *insertedNode);
+
+	void rotateLeft(node *treeNode);
+	void rotateRight(node *treeNode);
+
 	void deleteTree(node *treeNode);
 	void destroyNode(node *treeNode);
 };
 
 template<class T>
-inline void RedBlackTree<T>::addNode(T *value)
+inline void RedBlackTree<T>::addNode(T &value)
 {
-	T valueToInsert = *value;
-
 	node *nodeToInsert = new node;
-	nodeToInsert->value = value;
-	nodeToInsert->parent = nullptr;
+	nodeToInsert->value = &value;
 	nodeToInsert->left = getNIL();
 	nodeToInsert->right = getNIL();
 	nodeToInsert->color = RED;
@@ -49,26 +55,28 @@ inline void RedBlackTree<T>::addNode(T *value)
 		treeSize++;
 		return;
 	}
+
 	node *treeNode = this->root;
-	node *parent = this->root;
+
 	while (!isNIL(treeNode)) {
 		T nodeValue = *treeNode->value;
 		bool currentNodeLessThanValue = false;
 
-		if (nodeValue == valueToInsert)
+		if (nodeValue == value)
 			return;
-		currentNodeLessThanValue = nodeValue > valueToInsert ? false : true;
+		currentNodeLessThanValue = nodeValue > value ? false : true;
 
 		node *tmpNode = currentNodeLessThanValue ? treeNode->right : treeNode->left;
 		if (isNIL(tmpNode)) {
 			nodeToInsert->parent = treeNode;
 			currentNodeLessThanValue ? treeNode->right = nodeToInsert : treeNode->left = nodeToInsert;
 			treeSize++;
+			currentNodeLessThanValue ? insertionFix(treeNode->right) : insertionFix(treeNode->left);
 			return;
 		}
-		else if (tmpNode->value == value)
+		else if (*tmpNode->value == value)
 			return;
-		else 
+		else
 			treeNode = tmpNode;
 	}
 	return;
@@ -114,7 +122,6 @@ inline void RedBlackTree<T>::deleteNode(T * value)
 			}
 			else {//both subtree not empty
 				node *tmpNode = treeNode->right;
-				node *parent = tmpNode;
 
 				while (!isNIL(tmpNode->left)) //find smallest value
 					tmpNode = tmpNode->left;
@@ -123,7 +130,7 @@ inline void RedBlackTree<T>::deleteNode(T * value)
 				treeNode->value = tmpNode->value;
 				tmpNode->value = nullptr;
 				if (!isNIL(tmpNode->right))//if smallest node have right child
-					parent->left = tmpNode->right;
+					tmpNode->parent->left = tmpNode->right;
 				treeSize--;
 				return;
 			}
@@ -131,6 +138,26 @@ inline void RedBlackTree<T>::deleteNode(T * value)
 	}
 	//value not find
 	return;
+}
+
+template<class T>
+inline T * RedBlackTree<T>::find(T &value)
+{
+	node *treeNode = this->root;
+	while (!isNIL(treeNode)) {
+		T nodeValue = *treeNode->value;
+		if (nodeValue == value)
+			return treeNode->value;
+		else if (nodeValue > value) {
+			treeNode = treeNode->left;
+			continue;
+		}
+		else {
+			treeNode = treeNode->right;
+			continue;
+		}
+	}
+	return nullptr;
 }
 
 template<class T>
@@ -155,6 +182,107 @@ inline bool RedBlackTree<T>::isNIL(node *node)
 }
 
 template<class T>
+inline void RedBlackTree<T>::insertionFix(node *insertedNode)
+{
+	node *parent = insertedNode->parent;
+
+	if (parent == nullptr) {
+		insertedNode->color = BLACK;
+		return;
+	}
+
+	if (parent->color == RED) {
+		while (!isNIL(insertedNode) && parent->color == RED) {
+			parent = insertedNode->parent;
+			node *grandParent = parent->parent;
+			node *uncle = grandParent->left == parent ? grandParent->right : grandParent->left;
+			if (parent->color == RED && (uncle && uncle->color == RED)) {//case 1: red parent and red uncle
+				parent->color = BLACK;
+				uncle->color = BLACK;
+				grandParent->color = RED;
+
+				if (this->root == grandParent) {
+					grandParent->color = BLACK;
+					return;
+				}
+				insertedNode = grandParent;
+				continue;
+			}
+			else if (parent->color == RED && uncle->color == BLACK) {//case 2: red parent and black uncle
+				bool nodeIsRightChild = parent->right == insertedNode;
+				bool parentIsRightChild = grandParent->right == parent;
+				if (nodeIsRightChild && !parentIsRightChild) {
+					rotateLeft(parent);
+					insertedNode = insertedNode->left;
+				}
+				else if (!nodeIsRightChild && parentIsRightChild) {
+					rotateRight(parent);
+					insertedNode = insertedNode->right;
+				}
+
+				parent->color = BLACK;
+				grandParent->color = RED;
+				if (!nodeIsRightChild && !parentIsRightChild)
+					rotateRight(grandParent);
+				else
+					rotateLeft(grandParent);
+			}
+			else
+				return;
+		}
+	}
+}
+
+template<class T>
+inline void RedBlackTree<T>::rotateLeft(node * treeNode)
+{
+	node *pivot = treeNode->right;
+
+	pivot->parent = treeNode->parent;
+	if (treeNode->parent != nullptr) {
+		if (treeNode->parent->left == treeNode)
+			treeNode->parent->left = pivot;
+		else
+			treeNode->parent->right = pivot;
+	}
+
+	treeNode->right = pivot->left;
+	if (pivot->left != nullptr)
+		pivot->left->parent = treeNode;
+
+	treeNode->parent = pivot;
+	pivot->left = treeNode;
+	if (treeNode == this->root)
+		this->root = pivot;
+}
+
+template<class T>
+inline void RedBlackTree<T>::rotateRight(node *treeNode)
+{
+	node *pivot = treeNode->left;
+
+	pivot->parent = treeNode->parent;
+	if (pivot->parent == nullptr) {
+		this->root = pivot;
+	}
+	if (treeNode->parent != nullptr) {
+		if (treeNode->parent->left == treeNode)
+			treeNode->parent->left = pivot;
+		else
+			treeNode->parent->right = pivot;
+	}
+
+	treeNode->left = pivot->right;
+	if (pivot->right != nullptr)
+		pivot->right->parent = treeNode;
+
+	treeNode->parent = pivot;
+	pivot->right = treeNode;
+	if (treeNode == this->root)
+		this->root = pivot;
+}
+
+template<class T>
 inline void RedBlackTree<T>::deleteTree(node *treeNode) {
 	if (treeNode->left != nullptr)
 		deleteTree(treeNode->left);
@@ -168,7 +296,8 @@ inline void RedBlackTree<T>::deleteTree(node *treeNode) {
 template<class T>
 inline void RedBlackTree<T>::destroyNode(node *treeNode)
 {
-	treeSize--;
+	if (!isNIL(treeNode))
+		treeSize--;
 	delete treeNode->value;
 	delete treeNode;
 }

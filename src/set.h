@@ -5,6 +5,8 @@ template <class T>
 class set {
 public:
 	set();
+	set(set &copySet);
+	set(set &&copySet);
 
 	//capacity
 	bool empty();
@@ -14,11 +16,32 @@ public:
 	//modifiers
 	void clear();
 
-	void insert(T *value);
-	void deleteVal(T *value); //interim
+	void insert(T &value);
+	void erase(T *value);
+	T* find(T &value);
+
 private:
-	RedBlackTree *tree = new RedBlackTree();
+	RedBlackTree<T> *tree;
 };
+
+template<class T>
+inline set<T>::set()
+{
+	tree = new RedBlackTree<T>();
+}
+
+template<class T>
+inline set<T>::set(set &copySet)
+{
+	this->tree = copySet.tree;
+}
+
+template<class T>
+inline set<T>::set(set && copySet)
+{
+	this->tree = copySet.tree;
+	copySet.tree = nullptr;
+}
 
 template<class T>
 inline bool set<T>::empty()
@@ -45,13 +68,19 @@ inline void set<T>::clear()
 }
 
 template<class T>
-inline void set<T>::insert(T * value)
+inline void set<T>::insert(T &value)
 {
 	tree->addNode(value);
 }
 
 template<class T>
-inline void set<T>::deleteVal(T * value)
+inline T * set<T>::find(T &value)
+{
+	return tree->find(value);
+}
+
+template<class T>
+inline void set<T>::erase(T * value)
 {
 	tree->deleteNode(value);
 }

@@ -3,34 +3,45 @@
 
 #include "unique_ptr.h"
 #include "shared_ptr.h"
-#include "red-black_tree.h"
+#include "set.h"
 
-class Price{
-public:
-	Price() { value = 10; };
-	~Price() {};
-	int value = 0;
+struct Author {
+	int id = 0;
+	const char *name;
+	Author(int id, const char *name) {
+		this->id = id;
+		this->name = name;
+	}
+	bool operator==(const Author& other) const {
+		return other.id == id;
+	}
+
+	friend bool operator<(const Author& x, const Author& y) {
+		return x.id > y.id;
+	}
+	friend bool operator>(const Author& x, const Author& y) {
+		return x.id < y.id;
+	}
 };
 
 int main()
 {
-	shared_ptr<Price> test(new Price);
-	shared_ptr<Price> test2(test);
-	shared_ptr<Price> test4 = test2;
+	int id = 0;
+	Author author(1, "nikita");
+	Author author1(2, "sasha");
+	Author author2(3, "sergey");
+	Author author3(4, "kostya");
+	Author author4(5, "pasha");
+	set<Author> authorsList;
 
-	RedBlackTree<int> tree;
-	tree.addNode(new int(8));
-	tree.addNode(new int(9));
-	tree.addNode(new int(12));
-	tree.addNode(new int(15));
-	tree.addNode(new int(10));
-	tree.addNode(new int(11));
-	tree.addNode(new int(16));
-	tree.addNode(new int(13));
-	tree.addNode(new int(14));
+	authorsList.insert(author);
+	authorsList.insert(author1);
+	authorsList.insert(author2);
+	authorsList.insert(author3);
+	authorsList.insert(author4);
 
-	tree.deleteNode(new int(12));
-
+	Author requiredAuthor(3, "");
+	auto reqAuthor = authorsList.find(requiredAuthor);
 
 	system("pause");
 	return 0;
